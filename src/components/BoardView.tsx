@@ -8,7 +8,7 @@ function BoardView() {
       <Header />
 
       <div className="p-4 grid grid-cols-8 overflow-x-scroll no-scrollbar w-full">
-        <div className="flex grid-cols-1 md:col-start-4 md:col-span-full h-full w-fit ">
+        <div className="flex gap-6 grid-cols-1 md:col-start-4 md:col-span-full h-full w-fit ">
           <Columns />
           <NewColumn />
         </div>

@@ -83,8 +83,11 @@ function NewColumn() {
   }, [positions]);
 
   return (
-    <div>
-      <button onClick={handlePositions} className="w-44 cursor-pointer">
+    <div className="min-w-60">
+      <button
+        onClick={handlePositions}
+        className="relative -top-2  cursor-pointer bg-gray-100 rounded-md p-2"
+      >
         <AddIcon />
       </button>
 
