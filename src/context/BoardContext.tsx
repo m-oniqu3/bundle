@@ -10,6 +10,7 @@ export const BoardContext = createContext<ContextVales | null>(null);
 
 function BoardContextProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initalState);
+  console.log(state);
 
   return (
     <BoardContext.Provider value={{ state, dispatch }}>

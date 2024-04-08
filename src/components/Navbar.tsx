@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, SelectIcon } from "../icons";
 import CreateBoard from "./CreateBoard";
 
 function Navbar() {
+  const {
+    state: { activeBoard },
+  } = useBoardContext();
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
 
   function handleCreateBoard() {
@@ -22,7 +26,9 @@ function Navbar() {
               type="button"
               className="flex items-center gap-2 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded-lg text-sm px-2 py-2"
             >
-              <span className="hidden sm:block">Your Boards</span>
+              <span className="hidden sm:block">
+                {activeBoard || "Your Boards"}
+              </span>
               <SelectIcon />
             </button>
 
