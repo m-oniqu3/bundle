@@ -17,7 +17,11 @@ export function SelectIcon() {
   );
 }
 
-export function AddIcon() {
+export function AddIcon({
+  className = "",
+}: {
+  className?: string | undefined;
+}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +29,7 @@ export function AddIcon() {
       viewBox="0 0 24 24"
       strokeWidth={1.5}
       stroke="currentColor"
-      className="w-5 h-5"
+      className={`${className} w-5 h-5`}
     >
       <path
         strokeLinecap="round"

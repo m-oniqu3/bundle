@@ -1,12 +1,12 @@
-export interface Rows {
+export interface Row {
   id: string;
-  title: string;
+  content: string;
 }
 
 export interface Column {
   name: string;
   colour: string;
-  rows: Rows[];
+  rows: Row[];
 }
 
 export interface Board {

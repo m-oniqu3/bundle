@@ -9,7 +9,7 @@ export enum ActionEnum {
 
 export interface State {
   boards: Boards;
-  activeBoard: string;
+  activeBoard: string | null;
 }
 
 export interface CreateBoardAction {
@@ -24,7 +24,10 @@ export interface SetActiveBoardAction {
 
 export interface CreateColumnAction {
   type: ActionEnum.CREATE_COLUMN;
-  payload: string;
+  payload: {
+    activeBoard: string;
+    columnName: string;
+  };
 }
 
 export type Actions =
@@ -41,29 +44,29 @@ const newState = Object.assign({}, state, {
 */
 
 export const initalState: State = {
-  activeBoard: "",
+  activeBoard: null,
   boards: {
     tasks: [
       {
         name: "To Do",
         colour: "blue",
         rows: [
-          { id: "row1", title: "Design UI" },
-          { id: "row2", title: "Implement functionality" },
-          { id: "row3", title: "Write tests" },
+          { id: "row1", content: "Design UI" },
+          { id: "row2", content: "Implement functionality" },
+          { id: "row3", content: "Write tests" },
         ],
       },
       {
         name: "In Progress",
         colour: "green",
-        rows: [{ id: "row4", title: "Refactor code" }],
+        rows: [{ id: "row4", content: "Refactor code" }],
       },
     ],
     finished: [
       {
         name: "Done",
         colour: "orange",
-        rows: [{ id: "row5", title: "Deploy to production" }],
+        rows: [{ id: "row5", content: "Deploy to production" }],
       },
     ],
   },
@@ -86,10 +89,10 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       return Object.assign({}, state, {
         // copy boards
         boards: Object.assign({}, state.boards, {
-          [state.activeBoard]: [
+          [payload.activeBoard]: [
             // copy cols for active board & add new col
-            ...state.boards[state.activeBoard],
-            { name: payload, colour: "#ccc", rows: [] },
+            ...state.boards[payload.activeBoard],
+            { name: payload.columnName, colour: "pink", rows: [] },
           ],
         }),
       });

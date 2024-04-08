@@ -25,12 +25,14 @@ function NewColumn() {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!value) return;
+    if (!value || !activeBoard) return;
 
     //does already exist in board
-    const isDuplicateColumn = boards[activeBoard].find(
-      (col) => col.name.toLowerCase() === value.toLowerCase()
-    );
+    const isDuplicateColumn = activeBoard
+      ? boards[activeBoard].find(
+          (col) => col.name.toLowerCase() === value.toLowerCase()
+        )
+      : false;
 
     if (isDuplicateColumn) {
       console.log("column already exist");
@@ -39,7 +41,10 @@ function NewColumn() {
 
     const create_column: CreateColumnAction = {
       type: ActionEnum.CREATE_COLUMN,
-      payload: value,
+      payload: {
+        activeBoard,
+        columnName: value,
+      },
     };
 
     dispatch(create_column);
@@ -79,7 +84,7 @@ function NewColumn() {
 
   return (
     <div>
-      <button onClick={handlePositions} className="bg-red cursor-pointer">
+      <button onClick={handlePositions} className="w-44 cursor-pointer">
         <AddIcon />
       </button>
 
