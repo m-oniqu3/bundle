@@ -1,12 +1,12 @@
-export interface Task {
+export interface Rows {
   id: string;
   title: string;
 }
 
 export interface Column {
   name: string;
-  color: string;
-  tasks: Task[];
+  colour: string;
+  rows: Rows[];
 }
 
 export interface Board {

@@ -4,6 +4,7 @@ import { Boards } from "../types";
 export enum ActionEnum {
   CREATE_BOARD = "CREATE_BOARD",
   SET_ACTIVE_BOARD = "SET_ACTIVE_BOARD",
+  CREATE_COLUMN = "CREATE_COLUMN",
 }
 
 export interface State {
@@ -21,7 +22,15 @@ export interface SetActiveBoardAction {
   payload: string;
 }
 
-export type Actions = CreateBoardAction | SetActiveBoardAction;
+export interface CreateColumnAction {
+  type: ActionEnum.CREATE_COLUMN;
+  payload: string;
+}
+
+export type Actions =
+  | CreateBoardAction
+  | SetActiveBoardAction
+  | CreateColumnAction;
 
 /*
 const newState = Object.assign({}, state, {
@@ -37,8 +46,8 @@ export const initalState: State = {
     tasks: [
       {
         name: "To Do",
-        color: "blue",
-        tasks: [
+        colour: "blue",
+        rows: [
           { id: "row1", title: "Design UI" },
           { id: "row2", title: "Implement functionality" },
           { id: "row3", title: "Write tests" },
@@ -46,15 +55,15 @@ export const initalState: State = {
       },
       {
         name: "In Progress",
-        color: "green",
-        tasks: [{ id: "row4", title: "Refactor code" }],
+        colour: "green",
+        rows: [{ id: "row4", title: "Refactor code" }],
       },
     ],
     finished: [
       {
         name: "Done",
-        color: "orange",
-        tasks: [{ id: "row5", title: "Deploy to production" }],
+        colour: "orange",
+        rows: [{ id: "row5", title: "Deploy to production" }],
       },
     ],
   },
@@ -71,6 +80,19 @@ const reducer: Reducer<State, Actions> = (state, action) => {
 
     case ActionEnum.SET_ACTIVE_BOARD:
       return Object.assign({}, state, { activeBoard: payload });
+
+    case ActionEnum.CREATE_COLUMN:
+      // copy state
+      return Object.assign({}, state, {
+        // copy boards
+        boards: Object.assign({}, state.boards, {
+          [state.activeBoard]: [
+            // copy cols for active board & add new col
+            ...state.boards[state.activeBoard],
+            { name: payload, colour: "#ccc", rows: [] },
+          ],
+        }),
+      });
 
     default:
       return state;

@@ -13,8 +13,6 @@ function Navbar() {
     setIsCreatingBoard((state) => !state);
   }
 
-  console.log(isCreatingBoard);
-
   return (
     <>
       <nav className="p-4 flex gap-4  items-center justify-between w-full ">
