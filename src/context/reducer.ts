@@ -1,11 +1,12 @@
 import { Reducer } from "react";
-import { Boards } from "../types";
+import { Boards, Row } from "../types";
 
 export enum ActionEnum {
   CREATE_BOARD = "CREATE_BOARD",
   SET_ACTIVE_BOARD = "SET_ACTIVE_BOARD",
   CREATE_COLUMN = "CREATE_COLUMN",
   DELETE_COLUMN = "DELETE_COLUMN",
+  CREATE_ROW = "CREATE_ROW",
 }
 
 export interface State {
@@ -33,11 +34,17 @@ export interface DeleteColumnAction {
   payload: { activeBoard: string; columnName: string };
 }
 
+export interface CreateRowAction {
+  type: ActionEnum.CREATE_ROW;
+  payload: { activeBoard: string; columnName: string; row: Row };
+}
+
 export type Actions =
   | CreateBoardAction
   | SetActiveBoardAction
   | CreateColumnAction
-  | DeleteColumnAction;
+  | DeleteColumnAction
+  | CreateRowAction;
 
 /*
 const newState = Object.assign({}, state, {
@@ -55,22 +62,22 @@ export const initalState: State = {
         name: "To Do",
         colour: "blue",
         rows: [
-          { id: "row1", content: "Design UI" },
-          { id: "row2", content: "Implement functionality" },
-          { id: "row3", content: "Write tests" },
+          { id: 1, content: "Design UI" },
+          { id: 2, content: "Implement functionality" },
+          { id: 3, content: "Write tests" },
         ],
       },
       {
         name: "In Progress",
         colour: "green",
-        rows: [{ id: "row4", content: "Refactor code" }],
+        rows: [{ id: 4, content: "Refactor code" }],
       },
     ],
     finished: [
       {
         name: "Done",
         colour: "orange",
-        rows: [{ id: "row5", content: "Deploy to production" }],
+        rows: [{ id: 5, content: "Deploy to production" }],
       },
     ],
   },
@@ -121,6 +128,36 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       return Object.assign({}, state, {
         boards: Object.assign({}, state.boards, {
           [payload.activeBoard]: columnsForActiveBoard,
+        }),
+      });
+    }
+
+    case ActionEnum.CREATE_ROW: {
+      const column = state.boards[payload.activeBoard].find(
+        (col) => col.name === payload.columnName
+      );
+
+      if (!column) {
+        console.log("column does not exist");
+        return;
+      }
+
+      // copy state
+      return Object.assign({}, state, {
+        // copy state.boards
+        boards: Object.assign({}, state.boards, {
+          [payload.activeBoard]: [
+            // copy state.boards[board]
+            Object.assign({}, state.boards[payload.activeBoard], {
+              // [board][col]
+              [payload.columnName]: [
+                //copy [board][col]
+                Object.assign({}, column, {
+                  rows: [Object.assign({}, column.rows, payload.row)],
+                }),
+              ],
+            }),
+          ],
         }),
       });
     }

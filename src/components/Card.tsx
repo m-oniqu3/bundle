@@ -1,18 +1,17 @@
-import { Fragment } from "react/jsx-runtime";
 import { Row } from "../types";
 
 interface Props {
-  rows: Row[];
+  row: Row;
 }
 
 function Card(props: Props) {
-  const { rows } = props;
+  const { row } = props;
 
-  const renderedRows = rows.map((row) => {
-    return <li className="w-full bg-yellow-500">{row.content}</li>;
-  });
-
-  return <Fragment>{renderedRows}</Fragment>;
+  return (
+    <li className="p-2 border border-slate-200 rounded-md w-full text-sm  hover:bg-slate-100">
+      {row.content}
+    </li>
+  );
 }
 
 export default Card;

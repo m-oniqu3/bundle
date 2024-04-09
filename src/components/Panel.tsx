@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { ActionEnum, CreateRowAction } from "../context/reducer";
+import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, EllipsisIcon } from "../icons";
 import { Column } from "../types";
+import Card from "./Card";
 import PanelOptions from "./PanelOptions";
 
 interface Props {
@@ -14,11 +17,47 @@ function Panel(props: Props) {
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isMenuOpen, setIsOpenMenu] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [entry, setEntry] = useState("");
+  const {
+    dispatch,
+    state: { activeBoard },
+  } = useBoardContext();
 
   function handlePosition(e: React.MouseEvent<SVGSVGElement, MouseEvent>) {
     setPosition({ x: e.pageX, y: e.pageY });
     setIsOpenMenu((state) => !state);
   }
+
+  function handleFormVisibility() {
+    setShowForm((state) => !state);
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!entry) return;
+
+    if (!activeBoard) {
+      console.log("active board is needed to add new row to column");
+      return;
+    }
+
+    const create_row: CreateRowAction = {
+      type: ActionEnum.CREATE_ROW,
+      payload: {
+        activeBoard,
+        columnName: name,
+        row: { id: Date.now(), content: entry },
+      },
+    };
+
+    dispatch(create_row);
+  }
+
+  const cards = rows.map((row) => {
+    return <Card key={row.id} row={row} />;
+  });
 
   return (
     <>
@@ -33,6 +72,28 @@ function Panel(props: Props) {
             <AddIcon />
           </div>
         </header>
+
+        <ul className="flex flex-col gap-1 pt-2">{cards}</ul>
+
+        {showForm && (
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              value={entry}
+              onChange={(e) => setEntry(e.target.value)}
+              className="p-2 border border-gray-200 rounded-md w-full text-sm focus:outline-none  "
+              autoFocus
+            />
+          </form>
+        )}
+
+        <button
+          className="flex items-center gap-4 p-2 font-light hover:bg-slate-100 hover:rounded-md w-full"
+          onClick={handleFormVisibility}
+        >
+          <AddIcon />
+          <span className="text-sm">New</span>
+        </button>
       </div>
 
       {isMenuOpen && (

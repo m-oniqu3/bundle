@@ -1,5 +1,5 @@
 export interface Row {
-  id: string;
+  id: number;
   content: string;
 }
 
