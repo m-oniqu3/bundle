@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { ActionEnum, DeleteColumnAction } from "../context/reducer";
+import { useBoardContext } from "../context/useBoardContext";
 import { DeleteIcon, EditIcon } from "../icons";
+import { Column } from "../types";
 
 const lightColors = [
   "#e6e6fa", // Lavender
@@ -17,23 +20,30 @@ const lightColors = [
 ];
 
 const options = [
-  { id: 0, icon: <DeleteIcon />, name: "Delete Column" },
-  { id: 1, icon: <EditIcon />, name: "Edit Column" },
+  { id: 0, icon: <DeleteIcon />, name: "Delete Column", action: "delete" },
+  { id: 1, icon: <EditIcon />, name: "Edit Column", action: "edit" },
 ];
 
 interface Props {
   position: { x: number; y: number };
   closeMenu: () => void;
+  columnName: Column["name"];
 }
 
 function PanelOptions(props: Props) {
-  const { position, closeMenu } = props;
+  const { position, closeMenu, columnName } = props;
+  const {
+    dispatch,
+    state: { activeBoard },
+  } = useBoardContext();
+
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [activeElement, setActiveElement] = useState(0);
 
   const swatches = lightColors.map((colour) => {
     return (
       <li
+        key={colour}
         className="h-5 w-5  rounded-full inline-flex gap-1"
         style={{ backgroundColor: colour }}
       />
@@ -61,22 +71,45 @@ function PanelOptions(props: Props) {
       // if form is going to overflow the right side of the screen
       // place it right at the edge else place it where the user clicked
       if (position.x + formWidth > width) {
-        menuRef.current.style.right = "0";
+        menuRef.current.style.right = "15px";
       } else {
-        menuRef.current.style.left = `${position.x - 40}px`;
+        menuRef.current.style.left = `${position.x}px`;
       }
     }
 
     positionElement();
   }, [position]);
 
+  function handleActions(action: string) {
+    if (action !== "delete" && action !== "edit") return;
+
+    if (!activeBoard) {
+      console.log("active board is needed to delete column ");
+      return;
+    }
+
+    if (action === "delete") {
+      const delete_column: DeleteColumnAction = {
+        type: ActionEnum.DELETE_COLUMN,
+        payload: { activeBoard, columnName },
+      };
+
+      dispatch(delete_column);
+      closeMenu();
+    } else {
+      console.log("edit");
+    }
+  }
+
   const renderedOptions = options.map((option) => {
     const active = activeElement === option.id ? "bg-gray-100 rounded-md" : "";
     return (
       <li
+        key={option.id}
         id={option.id.toString()}
         className={`${active} py-2 px-3 flex gap-4 items-center cursor-pointer truncate hover:bg-gray-100 hover:rounded-md`}
         onMouseEnter={() => setActiveElement(option.id)}
+        onClick={() => handleActions(option.action)}
       >
         {option.icon}
 
@@ -90,7 +123,7 @@ function PanelOptions(props: Props) {
       ref={menuRef}
       className="absolute
            bg-white space-y-1 z-20 border border-gray-300 rounded-lg text-sm w-60"
-      style={{ top: position.y + 20, left: position.x }}
+      style={{ top: position.y + 20 }}
     >
       <ul className="border-b-[1px] border-gray-300 p-2">{renderedOptions}</ul>
 

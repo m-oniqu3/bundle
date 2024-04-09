@@ -5,6 +5,7 @@ export enum ActionEnum {
   CREATE_BOARD = "CREATE_BOARD",
   SET_ACTIVE_BOARD = "SET_ACTIVE_BOARD",
   CREATE_COLUMN = "CREATE_COLUMN",
+  DELETE_COLUMN = "DELETE_COLUMN",
 }
 
 export interface State {
@@ -24,16 +25,19 @@ export interface SetActiveBoardAction {
 
 export interface CreateColumnAction {
   type: ActionEnum.CREATE_COLUMN;
-  payload: {
-    activeBoard: string;
-    columnName: string;
-  };
+  payload: { activeBoard: string; columnName: string };
+}
+
+export interface DeleteColumnAction {
+  type: ActionEnum.DELETE_COLUMN;
+  payload: { activeBoard: string; columnName: string };
 }
 
 export type Actions =
   | CreateBoardAction
   | SetActiveBoardAction
-  | CreateColumnAction;
+  | CreateColumnAction
+  | DeleteColumnAction;
 
 /*
 const newState = Object.assign({}, state, {
@@ -96,6 +100,30 @@ const reducer: Reducer<State, Actions> = (state, action) => {
           ],
         }),
       });
+
+    case ActionEnum.DELETE_COLUMN: {
+      // clone active board
+      const columnsForActiveBoard = state.boards[payload.activeBoard].concat(
+        []
+      );
+
+      // get index of column
+      const columnIndex = state.boards[payload.activeBoard].findIndex(
+        (el) => el.name === payload.columnName
+      );
+
+      if (columnIndex === -1) return state;
+
+      // manipulate the clone
+      // don't spread because splice returns array of deleted elements
+      columnsForActiveBoard.splice(columnIndex, 1);
+
+      return Object.assign({}, state, {
+        boards: Object.assign({}, state.boards, {
+          [payload.activeBoard]: columnsForActiveBoard,
+        }),
+      });
+    }
 
     default:
       return state;
