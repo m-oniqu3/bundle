@@ -46,16 +46,17 @@ function Panel(props: Props) {
     const create_row: CreateRowAction = {
       type: ActionEnum.CREATE_ROW,
       payload: {
-        activeBoard,
-        columnName: name,
+        activeBoardID: activeBoard.id,
+        columnID: id,
         row: { id: Date.now(), content: entry },
       },
     };
 
     dispatch(create_row);
+    setEntry("");
   }
 
-  const rowsForBoard = activeBoard ? rows[activeBoard] : [];
+  const rowsForBoard = activeBoard ? rows[activeBoard.id] : [];
   const rowsForColumn = rowsForBoard[id] ?? [];
 
   const cards = rowsForColumn.map((row) => {
@@ -72,7 +73,7 @@ function Panel(props: Props) {
           >
             {name}
           </h3>
-          <p className="text-sm">{8}</p>
+          <p className="text-sm">{rowsForColumn.length}</p>
 
           <div className="absolute right-0 flex items-center gap-1 cursor-pointer">
             <EllipsisIcon onClick={handlePosition} />

@@ -1,4 +1,4 @@
-import { Column, Row } from "../types";
+import { Board, Column, Row } from "../types";
 
 export enum ActionEnum {
   CREATE_BOARD = "CREATE_BOARD",
@@ -15,22 +15,22 @@ export interface CreateBoardAction {
 
 export interface SetActiveBoardAction {
   type: ActionEnum.SET_ACTIVE_BOARD;
-  payload: string;
+  payload: Board;
 }
 
 export interface CreateColumnAction {
   type: ActionEnum.CREATE_COLUMN;
-  payload: { activeBoard: string; columnName: string };
+  payload: { activeBoardID: number; columnName: string };
 }
 
 export interface DeleteColumnAction {
   type: ActionEnum.DELETE_COLUMN;
-  payload: { activeBoard: string; columnID: Column["id"] };
+  payload: { activeBoardID: number; columnID: Column["id"] };
 }
 
 export interface CreateRowAction {
   type: ActionEnum.CREATE_ROW;
-  payload: { activeBoard: string; columnName: string; row: Row };
+  payload: { activeBoardID: number; columnID: number; row: Row };
 }
 
 export type Actions =

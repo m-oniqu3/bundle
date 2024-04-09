@@ -91,7 +91,7 @@ function PanelOptions(props: Props) {
     if (action === "delete") {
       const delete_column: DeleteColumnAction = {
         type: ActionEnum.DELETE_COLUMN,
-        payload: { activeBoard, columnID },
+        payload: { activeBoardID: activeBoard.id, columnID },
       };
 
       dispatch(delete_column);

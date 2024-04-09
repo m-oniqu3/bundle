@@ -28,13 +28,10 @@ function NewColumn() {
 
     if (!value || !activeBoard) return;
 
-    console.log(columns[activeBoard]);
     //does already exist in board
-    const isDuplicateColumn = activeBoard
-      ? columns[activeBoard]?.find(
-          (col) => col.name.toLowerCase() === value.toLowerCase()
-        )
-      : false;
+    const isDuplicateColumn = columns[activeBoard.id].find(
+      (col) => col.name.toLowerCase() === value.toLowerCase()
+    );
 
     if (isDuplicateColumn) {
       console.log("column already exist");
@@ -44,7 +41,7 @@ function NewColumn() {
     const create_column: CreateColumnAction = {
       type: ActionEnum.CREATE_COLUMN,
       payload: {
-        activeBoard,
+        activeBoardID: activeBoard.id,
         columnName: value,
       },
     };
@@ -77,7 +74,7 @@ function NewColumn() {
       if (positions.x + formWidth > width) {
         formRef.current.style.right = "0";
       } else {
-        formRef.current.style.left = `${positions.x}px`;
+        formRef.current.style.left = `${positions.x}px `;
       }
     }
 
@@ -98,7 +95,7 @@ function NewColumn() {
           ref={formRef}
           className="w-72 mt-4 flex gap-2 items-center absolute "
           onSubmit={handleSubmit}
-          style={{ top: positions.y }}
+          style={{ top: positions.y + 15 }}
         >
           <input
             autoFocus

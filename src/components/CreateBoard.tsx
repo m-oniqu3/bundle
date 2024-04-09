@@ -1,9 +1,5 @@
 import { useState } from "react";
-import {
-  ActionEnum,
-  CreateBoardAction,
-  SetActiveBoardAction,
-} from "../context/actions";
+import { ActionEnum, CreateBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { CloseIcon } from "../icons";
 
@@ -23,7 +19,7 @@ function CreateBoard(props: Props) {
     e.preventDefault();
     if (!name) return;
 
-    if (boards.has(name)) {
+    if (boards.find((board) => board.name === name)) {
       console.log("board exists");
       return;
     }
@@ -33,13 +29,8 @@ function CreateBoard(props: Props) {
       payload: name,
     };
 
-    const set_active_board: SetActiveBoardAction = {
-      type: ActionEnum.SET_ACTIVE_BOARD,
-      payload: name,
-    };
-
     dispatch(create_board);
-    dispatch(set_active_board);
+
     close();
   }
 

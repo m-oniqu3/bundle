@@ -6,13 +6,15 @@ function Columns() {
     state: { activeBoard, columns },
   } = useBoardContext();
 
-  const columnsForActiveBoard = activeBoard
-    ? columns[activeBoard]
-      ? columns[activeBoard]
-      : []
-    : [];
+  const columnsForBoard = activeBoard ? columns[activeBoard.id] : [];
+  // const cols = columnsForBoard ? columnsForBoard : [];
+  console.log(columnsForBoard);
 
-  const renderedColumns = columnsForActiveBoard.map((col) => {
+  //   ? columns[activeBoard.id]
+  //   : []
+  // : [];
+
+  const renderedColumns = columnsForBoard.map((col) => {
     return <Panel key={col.id} column={col} />;
   });
 

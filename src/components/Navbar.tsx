@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ActionEnum, SetActiveBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, SelectIcon } from "../icons";
+import { Board } from "../types";
 import CreateBoard from "./CreateBoard";
 
 function Navbar() {
@@ -21,10 +22,10 @@ function Navbar() {
     setOpenDropDown((state) => !state);
   }
 
-  function handleActiveBoard(boardName: string) {
+  function handleActiveBoard(board: Board) {
     const set_active_board: SetActiveBoardAction = {
       type: ActionEnum.SET_ACTIVE_BOARD,
-      payload: boardName,
+      payload: board,
     };
 
     dispatch(set_active_board);
@@ -33,17 +34,17 @@ function Navbar() {
 
   const createdBoards = Array.from(boards);
 
-  const renderedBoards = createdBoards.map((name) => {
+  const renderedBoards = createdBoards.map((board) => {
     const active =
-      activeBoard === name ? "bg-gray-100 rounded-md font-medium" : "";
+      activeBoard === board ? "bg-gray-100 rounded-md font-medium" : "";
 
     return (
       <li
-        key={name}
-        onClick={() => handleActiveBoard(name)}
+        key={board.id}
+        onClick={() => handleActiveBoard(board)}
         className={`${active} py-2 px-3 cursor-pointer truncate  hover:bg-gray-100 hover:rounded-md `}
       >
-        {name}
+        {board.name}
       </li>
     );
   });
@@ -62,7 +63,7 @@ function Navbar() {
                 className=" grid grid-cols-1 items-center gap-1 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded-lg text-sm px-2 py-2 sm:w-28 sm:grid-cols-[auto,20px]"
               >
                 <span className="hidden sm:block truncate text-left ">
-                  {activeBoard}
+                  {activeBoard.name}
                 </span>
                 <SelectIcon />
               </button>

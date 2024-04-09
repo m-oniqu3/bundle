@@ -8,3 +8,8 @@ export interface Column {
   name: string;
   colour: string;
 }
+
+export interface Board {
+  name: string;
+  id: number;
+}
