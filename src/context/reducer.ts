@@ -1,85 +1,52 @@
 import { Reducer } from "react";
-import { Boards, Row } from "../types";
+import { Column, Row } from "../types";
+import { ActionEnum, Actions } from "./actions";
 
-export enum ActionEnum {
-  CREATE_BOARD = "CREATE_BOARD",
-  SET_ACTIVE_BOARD = "SET_ACTIVE_BOARD",
-  CREATE_COLUMN = "CREATE_COLUMN",
-  DELETE_COLUMN = "DELETE_COLUMN",
-  CREATE_ROW = "CREATE_ROW",
+interface Rows {
+  [boardname: string]: {
+    [columnID: number]: Row[];
+  };
 }
-
 export interface State {
-  boards: Boards;
+  boards: Set<string>;
+  columns: Record<string, Column[]>; // key is board name
+  rows: Rows;
   activeBoard: string | null;
 }
 
-export interface CreateBoardAction {
-  type: ActionEnum.CREATE_BOARD;
-  payload: string;
-}
-
-export interface SetActiveBoardAction {
-  type: ActionEnum.SET_ACTIVE_BOARD;
-  payload: string;
-}
-
-export interface CreateColumnAction {
-  type: ActionEnum.CREATE_COLUMN;
-  payload: { activeBoard: string; columnName: string };
-}
-
-export interface DeleteColumnAction {
-  type: ActionEnum.DELETE_COLUMN;
-  payload: { activeBoard: string; columnName: string };
-}
-
-export interface CreateRowAction {
-  type: ActionEnum.CREATE_ROW;
-  payload: { activeBoard: string; columnName: string; row: Row };
-}
-
-export type Actions =
-  | CreateBoardAction
-  | SetActiveBoardAction
-  | CreateColumnAction
-  | DeleteColumnAction
-  | CreateRowAction;
-
-/*
-const newState = Object.assign({}, state, {
-  nestedObject: Object.assign({}, state.nestedObject, {
-    nestedProperty: newValue
-  })
-});
-*/
-
 export const initalState: State = {
   activeBoard: null,
-  boards: {
-    tasks: [
-      {
-        name: "To Do",
-        colour: "blue",
-        rows: [
-          { id: 1, content: "Design UI" },
-          { id: 2, content: "Implement functionality" },
-          { id: 3, content: "Write tests" },
-        ],
-      },
-      {
-        name: "In Progress",
-        colour: "green",
-        rows: [{ id: 4, content: "Refactor code" }],
-      },
+  boards: new Set(["Development", "Testing", "Deployment"]),
+  columns: {
+    Development: [
+      { name: "To Do", id: 1, colour: "#EAEAEA" },
+      { name: "In Progress", id: 2, colour: "#ACBEA3" },
+      { name: "Code Review", id: 3, colour: "#DFF8EB" },
     ],
-    finished: [
-      {
-        name: "Done",
-        colour: "orange",
-        rows: [{ id: 5, content: "Deploy to production" }],
-      },
+    Testing: [
+      { name: "To Test", id: 4, colour: "#FECEF1" },
+      { name: "In Progress", id: 5, colour: "#9DD9D2" },
+      { name: "Done", id: 6, colour: "#FFEAEC" },
     ],
+    Deployment: [
+      { name: "Pending", id: 7, colour: "#F39A9D" },
+      { name: "In Progress", id: 8, colour: "#C0E0DE" },
+      { name: "Done", id: 9, colour: "#DAD4EF" },
+    ],
+  },
+  rows: {
+    Development: {
+      1: [
+        { id: 11, content: "Setup project" },
+        { id: 12, content: "Implement authentication" },
+      ],
+      2: [{ id: 13, content: "Refactor codebase" }],
+    },
+    Testing: {
+      4: [{ id: 14, content: "Write unit tests" }],
+      5: [{ id: 15, content: "Perform integration testing" }],
+    },
+    Deployment: { 7: [{ id: 16, content: "Prepare deployment scripts" }] },
   },
 };
 
@@ -89,78 +56,66 @@ const reducer: Reducer<State, Actions> = (state, action) => {
   switch (type) {
     case ActionEnum.CREATE_BOARD:
       return Object.assign({}, state, {
-        boards: Object.assign({}, state.boards, { [payload]: [] }),
+        boards: new Set([...state.boards, payload]),
       });
 
     case ActionEnum.SET_ACTIVE_BOARD:
       return Object.assign({}, state, { activeBoard: payload });
 
-    case ActionEnum.CREATE_COLUMN:
-      // copy state
-      return Object.assign({}, state, {
-        // copy boards
-        boards: Object.assign({}, state.boards, {
+    case ActionEnum.CREATE_COLUMN: {
+      const columnID = Date.now();
+
+      return {
+        ...state,
+        columns: {
+          ...state.columns,
           [payload.activeBoard]: [
-            // copy cols for active board & add new col
-            ...state.boards[payload.activeBoard],
-            { name: payload.columnName, colour: "pink", rows: [] },
+            ...(state.columns[payload.activeBoard] ?? []),
+            { id: columnID, name: payload.columnName, colour: "#D0FEF5" },
           ],
-        }),
-      });
+        },
+        rows: {
+          ...state.rows,
+          [payload.activeBoard]: {
+            ...state.rows[payload.activeBoard],
+            [columnID]: [],
+          },
+        },
+      };
+    }
 
     case ActionEnum.DELETE_COLUMN: {
-      // clone active board
-      const columnsForActiveBoard = state.boards[payload.activeBoard].concat(
+      // clone columns for active board
+      const columnsForActiveBoard = state.columns[payload.activeBoard].concat(
         []
       );
 
-      // get index of column
-      const columnIndex = state.boards[payload.activeBoard].findIndex(
-        (el) => el.name === payload.columnName
+      // get index for the given column
+      const columnIndex = columnsForActiveBoard.findIndex(
+        (col) => col.id === payload.columnID
       );
 
-      if (columnIndex === -1) return state;
-
-      // manipulate the clone
-      // don't spread because splice returns array of deleted elements
+      // remove column at that index
       columnsForActiveBoard.splice(columnIndex, 1);
 
-      return Object.assign({}, state, {
-        boards: Object.assign({}, state.boards, {
+      // clone rows and del
+      const rows = Object.assign({}, state.rows[payload.activeBoard]);
+      delete rows[payload.columnID];
+
+      return {
+        ...state,
+        columns: {
+          ...state.columns,
           [payload.activeBoard]: columnsForActiveBoard,
-        }),
-      });
+        },
+        rows: {
+          ...state.rows,
+          [payload.activeBoard]: rows,
+        },
+      };
     }
-
-    case ActionEnum.CREATE_ROW: {
-      const column = state.boards[payload.activeBoard].find(
-        (col) => col.name === payload.columnName
-      );
-
-      if (!column) {
-        console.log("column does not exist");
-        return;
-      }
-
-      // copy state
-      return Object.assign({}, state, {
-        // copy state.boards
-        boards: Object.assign({}, state.boards, {
-          [payload.activeBoard]: [
-            // copy state.boards[board]
-            Object.assign({}, state.boards[payload.activeBoard], {
-              // [board][col]
-              [payload.columnName]: [
-                //copy [board][col]
-                Object.assign({}, column, {
-                  rows: [Object.assign({}, column.rows, payload.row)],
-                }),
-              ],
-            }),
-          ],
-        }),
-      });
-    }
+    case ActionEnum.CREATE_ROW:
+      return state;
 
     default:
       return state;

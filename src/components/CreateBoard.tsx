@@ -3,7 +3,7 @@ import {
   ActionEnum,
   CreateBoardAction,
   SetActiveBoardAction,
-} from "../context/reducer";
+} from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { CloseIcon } from "../icons";
 
@@ -23,7 +23,7 @@ function CreateBoard(props: Props) {
     e.preventDefault();
     if (!name) return;
 
-    if (boards[name]) {
+    if (boards.has(name)) {
       console.log("board exists");
       return;
     }

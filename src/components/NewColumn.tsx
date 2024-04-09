@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ActionEnum, CreateColumnAction } from "../context/reducer";
+import { ActionEnum, CreateColumnAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon } from "../icons";
 
@@ -9,7 +9,7 @@ function NewColumn() {
   const [displayForm, setDisplayForm] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const {
-    state: { activeBoard, boards },
+    state: { activeBoard, columns },
     dispatch,
   } = useBoardContext();
 
@@ -24,12 +24,14 @@ function NewColumn() {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    console.log(activeBoard);
 
     if (!value || !activeBoard) return;
 
+    console.log(columns[activeBoard]);
     //does already exist in board
     const isDuplicateColumn = activeBoard
-      ? boards[activeBoard].find(
+      ? columns[activeBoard]?.find(
           (col) => col.name.toLowerCase() === value.toLowerCase()
         )
       : false;

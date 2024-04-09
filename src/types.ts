@@ -4,15 +4,7 @@ export interface Row {
 }
 
 export interface Column {
+  id: number;
   name: string;
   colour: string;
-  rows: Row[];
-}
-
-export interface Board {
-  [columnName: string]: Column[];
-}
-
-export interface Boards {
-  [boardName: string]: Column[];
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActionEnum, SetActiveBoardAction } from "../context/reducer";
+import { ActionEnum, SetActiveBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, SelectIcon } from "../icons";
 import CreateBoard from "./CreateBoard";
@@ -31,7 +31,7 @@ function Navbar() {
     setOpenDropDown(false);
   }
 
-  const createdBoards = Object.keys(boards);
+  const createdBoards = Array.from(boards);
 
   const renderedBoards = createdBoards.map((name) => {
     const active =
@@ -59,7 +59,7 @@ function Navbar() {
               <button
                 type="button"
                 onClick={handleDropdown}
-                className=" grid grid-cols-[auto,20px] items-center gap-1 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded-lg text-sm px-2 py-2 sm:w-28"
+                className=" grid grid-cols-1 items-center gap-1 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded-lg text-sm px-2 py-2 sm:w-28 sm:grid-cols-[auto,20px]"
               >
                 <span className="hidden sm:block truncate text-left ">
                   {activeBoard}

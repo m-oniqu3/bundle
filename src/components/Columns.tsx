@@ -3,13 +3,17 @@ import Panel from "./Panel";
 
 function Columns() {
   const {
-    state: { activeBoard, boards },
+    state: { activeBoard, columns },
   } = useBoardContext();
 
-  const columnsForActiveBoard = activeBoard ? boards[activeBoard] : [];
+  const columnsForActiveBoard = activeBoard
+    ? columns[activeBoard]
+      ? columns[activeBoard]
+      : []
+    : [];
 
   const renderedColumns = columnsForActiveBoard.map((col) => {
-    return <Panel key={col.name} column={col} />;
+    return <Panel key={col.id} column={col} />;
   });
 
   return <div className="flex gap-6 min-h-80 w-full">{renderedColumns}</div>;

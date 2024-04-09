@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ActionEnum, DeleteColumnAction } from "../context/reducer";
+import { ActionEnum, DeleteColumnAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { DeleteIcon, EditIcon } from "../icons";
 import { Column } from "../types";
@@ -27,11 +27,11 @@ const options = [
 interface Props {
   position: { x: number; y: number };
   closeMenu: () => void;
-  columnName: Column["name"];
+  columnID: Column["id"];
 }
 
 function PanelOptions(props: Props) {
-  const { position, closeMenu, columnName } = props;
+  const { position, closeMenu, columnID } = props;
   const {
     dispatch,
     state: { activeBoard },
@@ -91,7 +91,7 @@ function PanelOptions(props: Props) {
     if (action === "delete") {
       const delete_column: DeleteColumnAction = {
         type: ActionEnum.DELETE_COLUMN,
-        payload: { activeBoard, columnName },
+        payload: { activeBoard, columnID },
       };
 
       dispatch(delete_column);
