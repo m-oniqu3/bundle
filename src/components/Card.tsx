@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Actions, DeleteRowAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
-import { DeleteIcon, EditIcon, EllipsisVertical } from "../icons";
+import {
+  CheckIcon,
+  CloseIcon,
+  DeleteIcon,
+  EditIcon,
+  EllipsisVertical,
+} from "../icons";
 import { Column, Row } from "../types";
 
 const options = [
@@ -15,15 +21,20 @@ interface Props {
 
 function Card(props: Props) {
   const { row, columnID } = props;
-  const [isMenuOpen, setOpenMenu] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const menuRef = useRef<HTMLUListElement | null>(null);
-  const [activeOption, setActiveOption] = useState(0);
-
   const {
     dispatch,
     state: { activeBoard },
   } = useBoardContext();
+
+  const [isMenuOpen, setOpenMenu] = useState(false);
+  const [isEditingRow, setIsEditingRow] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [activeOption, setActiveOption] = useState(0);
+  const [updatedContent, setUpdatedContent] = useState(row.content);
+
+  const menuRef = useRef<HTMLUListElement | null>(null);
+  const rowRef = useRef<HTMLLIElement | null>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   function handleMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     e.stopPropagation();
@@ -48,7 +59,15 @@ function Card(props: Props) {
 
       dispatch(delete_row);
       setOpenMenu(false);
+    } else if (action === "edit") {
+      setIsEditingRow((state) => !state);
+      setOpenMenu(false);
     }
+  }
+
+  function handleTextArea(e: React.FormEvent<HTMLTextAreaElement>) {
+    e.currentTarget.style.height = "";
+    e.currentTarget.style.height = e.currentTarget.scrollHeight + 3 + "px";
   }
 
   useEffect(() => {
@@ -81,6 +100,16 @@ function Card(props: Props) {
     positionElement();
   }, [position]);
 
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "";
+      textAreaRef.current.style.height =
+        textAreaRef.current.scrollHeight + 3 + "px";
+
+      textAreaRef.current.selectionStart = textAreaRef.current.value.length;
+    }
+  }, [isEditingRow]);
+
   const renderedOptions = options.map((option) => {
     const active = activeOption === option.id ? "bg-gray-100 rounded-md" : "";
     return (
@@ -100,15 +129,39 @@ function Card(props: Props) {
 
   return (
     <>
-      <li className="grid grid-cols-[auto,15px] p-2 border border-slate-200 rounded-md w-full text-sm  hover:bg-slate-100">
-        {row.content}
-        <div
-          onClick={handleMenu}
-          className="z-30 cursor-pointer flex items-center justify-center hover:bg-gray-200 hover:rounded-sm"
+      {!isEditingRow ? (
+        <li
+          ref={rowRef}
+          className="grid grid-cols-[auto,15px] items-start p-2 border border-slate-200 rounded-md w-full text-sm hover:bg-slate-100 "
         >
-          <EllipsisVertical />
-        </div>
-      </li>
+          {row.content}
+          <div
+            onClick={handleMenu}
+            className="z-30 cursor-pointer flex items-center justify-center hover:bg-gray-200 hover:rounded-sm"
+          >
+            <EllipsisVertical />
+          </div>
+        </li>
+      ) : (
+        <form className="relative h-full ">
+          <textarea
+            ref={textAreaRef}
+            value={updatedContent}
+            onInput={handleTextArea}
+            onChange={(e) => setUpdatedContent(e.target.value)}
+            className="p-2 h-full pr-10 text-justify border border-gray-200 rounded-md w-full text-sm focus:outline-none "
+            autoFocus
+          />
+
+          <div
+            className="absolute top-2 right-2 cursor-pointer flex flex-col gap-2"
+            onClick={() => setIsEditingRow(false)}
+          >
+            <CloseIcon />
+            <CheckIcon />
+          </div>
+        </form>
+      )}
 
       {isMenuOpen && (
         <ul
