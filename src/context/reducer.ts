@@ -86,6 +86,30 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       };
     }
 
+    case ActionEnum.EDIT_COLUMN_NAME: {
+      // clone columns in board
+      const columns = state.columns[payload.activeBoardID].concat([]);
+
+      //find column
+      const column = columns.find((col) => col.id === payload.columnID);
+
+      if (!column) {
+        console.log("Could not edit column name");
+        return state;
+      }
+
+      // update column name
+      column.name = payload.newColumnName;
+
+      return {
+        ...state,
+        columns: {
+          ...state.columns,
+          [payload.activeBoardID]: columns,
+        },
+      };
+    }
+
     case ActionEnum.CREATE_ROW: {
       return {
         ...state,

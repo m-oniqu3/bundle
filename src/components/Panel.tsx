@@ -108,8 +108,9 @@ function Panel(props: Props) {
       {isMenuOpen && (
         <PanelOptions
           position={position}
+          setPosition={setPosition}
           closeMenu={() => setIsOpenMenu(false)}
-          columnID={id}
+          column={{ name, colour, id }}
         />
       )}
     </>
