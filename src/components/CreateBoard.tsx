@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActionEnum, CreateBoardAction } from "../context/actions";
+import { Actions, CreateBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { CloseIcon } from "../icons";
 
@@ -25,7 +25,7 @@ function CreateBoard(props: Props) {
     }
 
     const create_board: CreateBoardAction = {
-      type: ActionEnum.CREATE_BOARD,
+      type: Actions.CREATE_BOARD,
       payload: name,
     };
 

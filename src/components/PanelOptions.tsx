@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import {
-  ActionEnum,
+  Actions,
   DeleteColumnAction,
   EditColumnNameAction,
 } from "../context/actions";
@@ -115,7 +115,7 @@ function PanelOptions(props: Props) {
 
     if (action === "delete") {
       const delete_column: DeleteColumnAction = {
-        type: ActionEnum.DELETE_COLUMN,
+        type: Actions.DELETE_COLUMN,
         payload: { activeBoardID: activeBoard.id, columnID: column.id },
       };
 
@@ -145,7 +145,7 @@ function PanelOptions(props: Props) {
     }
 
     const edit_column_name: EditColumnNameAction = {
-      type: ActionEnum.EDIT_COLUMN_NAME,
+      type: Actions.EDIT_COLUMN_NAME,
       payload: {
         activeBoardID: activeBoard.id,
         columnID: column.id,

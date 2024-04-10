@@ -1,11 +1,11 @@
 import { createContext, useReducer } from "react";
-import { Actions } from "./actions";
+import { ActionTypes } from "./actions";
 import { initialState } from "./initialState";
 import reducer, { State } from "./reducer";
 
 interface ContextVales {
   state: State;
-  dispatch: React.Dispatch<Actions>;
+  dispatch: React.Dispatch<ActionTypes>;
 }
 
 export const BoardContext = createContext<ContextVales | null>(null);

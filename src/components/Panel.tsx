@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActionEnum, CreateRowAction } from "../context/actions";
+import { Actions, CreateRowAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, EllipsisIcon } from "../icons";
 import { Column } from "../types";
@@ -44,7 +44,7 @@ function Panel(props: Props) {
     }
 
     const create_row: CreateRowAction = {
-      type: ActionEnum.CREATE_ROW,
+      type: Actions.CREATE_ROW,
       payload: {
         activeBoardID: activeBoard.id,
         columnID: id,
@@ -60,7 +60,7 @@ function Panel(props: Props) {
   const rowsForColumn = rowsForBoard[id] ?? [];
 
   const cards = rowsForColumn.map((row) => {
-    return <Card key={row.id} row={row} />;
+    return <Card key={row.id} row={row} columnID={id} />;
   });
 
   return (

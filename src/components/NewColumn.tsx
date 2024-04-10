@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ActionEnum, CreateColumnAction } from "../context/actions";
+import { Actions, CreateColumnAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon } from "../icons";
 
@@ -39,7 +39,7 @@ function NewColumn() {
     }
 
     const create_column: CreateColumnAction = {
-      type: ActionEnum.CREATE_COLUMN,
+      type: Actions.CREATE_COLUMN,
       payload: {
         activeBoardID: activeBoard.id,
         columnName: value,

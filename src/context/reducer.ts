@@ -1,6 +1,6 @@
 import { Reducer } from "react";
 import { Board, Column, Row } from "../types";
-import { ActionEnum, Actions } from "./actions";
+import { ActionTypes, Actions } from "./actions";
 
 interface Rows {
   [boardname: string]: {
@@ -14,11 +14,11 @@ export interface State {
   activeBoard: Board | null;
 }
 
-const reducer: Reducer<State, Actions> = (state, action) => {
+const reducer: Reducer<State, ActionTypes> = (state, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case ActionEnum.CREATE_BOARD: {
+    case Actions.CREATE_BOARD: {
       const id = Date.now();
       return Object.assign({}, state, {
         boards: [...state.boards, { name: payload, id }],
@@ -30,10 +30,10 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       });
     }
 
-    case ActionEnum.SET_ACTIVE_BOARD:
+    case Actions.SET_ACTIVE_BOARD:
       return Object.assign({}, state, { activeBoard: payload });
 
-    case ActionEnum.CREATE_COLUMN: {
+    case Actions.CREATE_COLUMN: {
       const columnID = Date.now();
 
       return {
@@ -55,7 +55,7 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       };
     }
 
-    case ActionEnum.DELETE_COLUMN: {
+    case Actions.DELETE_COLUMN: {
       // clone columns for active board
       const columnsForActiveBoard = state.columns[payload.activeBoardID].concat(
         []
@@ -86,7 +86,7 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       };
     }
 
-    case ActionEnum.EDIT_COLUMN_NAME: {
+    case Actions.EDIT_COLUMN_NAME: {
       // clone columns in board
       const columns = state.columns[payload.activeBoardID].concat([]);
 
@@ -110,7 +110,7 @@ const reducer: Reducer<State, Actions> = (state, action) => {
       };
     }
 
-    case ActionEnum.CREATE_ROW: {
+    case Actions.CREATE_ROW: {
       return {
         ...state,
         rows: {
@@ -121,6 +121,36 @@ const reducer: Reducer<State, Actions> = (state, action) => {
               ...(state.rows[payload.activeBoardID][payload.columnID] ?? []),
               payload.row,
             ],
+          },
+        },
+      };
+    }
+
+    case Actions.DELETE_ROW: {
+      const columnsForBoard = state.rows[payload.activeBoardID];
+      const rowsForColumn = columnsForBoard[payload.columnID].concat([]);
+
+      //index of row
+      const rowIndex = rowsForColumn.findIndex(
+        (row) => row.id === payload.rowID
+      );
+
+      if (rowIndex === -1) {
+        console.log("Could not find row to delete");
+        return state;
+      }
+
+      //delete the row
+
+      rowsForColumn.splice(rowIndex, 1);
+
+      return {
+        ...state,
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [payload.columnID]: rowsForColumn,
           },
         },
       };

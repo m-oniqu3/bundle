@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ActionEnum, SetActiveBoardAction } from "../context/actions";
+import { Actions, SetActiveBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, SelectIcon } from "../icons";
 import { Board } from "../types";
@@ -24,7 +24,7 @@ function Navbar() {
 
   function handleActiveBoard(board: Board) {
     const set_active_board: SetActiveBoardAction = {
-      type: ActionEnum.SET_ACTIVE_BOARD,
+      type: Actions.SET_ACTIVE_BOARD,
       payload: board,
     };
 
