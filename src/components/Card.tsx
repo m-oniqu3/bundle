@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Actions, DeleteRowAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { DeleteIcon, EditIcon, EllipsisVertical } from "../icons";
 import { Column, Row } from "../types";
 import EditCard from "./EditCard";
@@ -26,19 +27,10 @@ function Card(props: Props) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [activeOption, setActiveOption] = useState(0);
 
-  const menuRef = useRef<HTMLUListElement | null>(null);
+  const menuRef = useDetectClickOutside<HTMLUListElement>({
+    closeMenu: () => setOpenMenu(false),
+  });
   const rowRef = useRef<HTMLLIElement | null>(null);
-
-  useEffect(() => {
-    function detectClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpenMenu(false);
-      }
-    }
-    document.addEventListener("mousedown", detectClick);
-
-    return () => document.removeEventListener("mousedown", detectClick);
-  }, []);
 
   useEffect(() => {
     function positionElement() {
@@ -57,7 +49,7 @@ function Card(props: Props) {
     }
 
     positionElement();
-  }, [position]);
+  }, [position, menuRef]);
 
   function handleMenu(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     e.stopPropagation();

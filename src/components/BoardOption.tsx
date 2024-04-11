@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Actions, DeleteBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { DeleteIcon, EditIcon } from "../icons";
 
 const options = [
@@ -11,29 +12,18 @@ const options = [
 interface Props {
   position: { x: number; y: number };
   closeMenu: () => void;
+  showEditForm: () => void;
 }
 
 function BoardOption(props: Props) {
-  const { position, closeMenu } = props;
+  const { position, closeMenu, showEditForm } = props;
   const [activeElement, setActiveElement] = useState(0);
-  const menuRef = useRef<HTMLUListElement | null>(null);
+  const menuRef = useDetectClickOutside<HTMLUListElement>({ closeMenu });
 
   const {
     dispatch,
     state: { activeBoard },
   } = useBoardContext();
-
-  useEffect(() => {
-    function detectClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        closeMenu();
-      }
-    }
-
-    document.addEventListener("mousedown", detectClick);
-
-    return () => document.removeEventListener("mousedown", detectClick);
-  }, [closeMenu]);
 
   useEffect(() => {
     function positionElement() {
@@ -52,7 +42,7 @@ function BoardOption(props: Props) {
     }
 
     positionElement();
-  }, [position]);
+  }, [position, menuRef]);
 
   function handleActions(action: string) {
     if (action !== "delete" && action !== "edit") return;
@@ -69,11 +59,10 @@ function BoardOption(props: Props) {
       };
 
       dispatch(delete_board);
-      closeMenu();
-      console.log("delete");
     } else {
-      console.log("edit");
+      showEditForm();
     }
+    closeMenu();
   }
 
   const renderedOptions = options.map((option) => {

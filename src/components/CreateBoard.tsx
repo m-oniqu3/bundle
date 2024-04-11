@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Actions, CreateBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { CloseIcon } from "../icons";
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
 
 function CreateBoard(props: Props) {
   const { close } = props;
+  const formRef = useDetectClickOutside<HTMLFormElement>({ closeMenu: close });
+
   const {
     state: { boards },
     dispatch,
@@ -36,6 +39,7 @@ function CreateBoard(props: Props) {
 
   return (
     <form
+      ref={formRef}
       className="w-full max-w-72 flex items-center gap-2"
       onSubmit={handleSubmit}
     >

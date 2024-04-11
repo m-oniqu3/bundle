@@ -37,14 +37,6 @@ const reducer: Reducer<State, ActionTypes> = (state, action) => {
       const columnsForBoard = { ...state.columns };
       const rowsForBoard = { ...state.rows };
 
-      // const boardIndex = boards.findIndex((board) => board.id === payload);
-
-      // if (boardIndex === -1) {
-      //   console.log("Could not delete board");
-      //   return state;
-      // }
-
-      // boards.splice(boardIndex, 1);
       delete columnsForBoard[payload];
       delete rowsForBoard[payload];
 
@@ -69,7 +61,7 @@ const reducer: Reducer<State, ActionTypes> = (state, action) => {
 
       board.name = payload.newBoardName;
 
-      return { ...state, boards };
+      return { ...state, activeBoard: board, boards };
     }
 
     case Actions.SET_ACTIVE_BOARD:
