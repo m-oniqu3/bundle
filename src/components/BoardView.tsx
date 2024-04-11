@@ -4,7 +4,7 @@ import NewColumn from "./NewColumn";
 
 function BoardView() {
   return (
-    <div>
+    <>
       <Header />
 
       <div className="p-4 grid grid-cols-8 overflow-x-scroll no-scrollbar w-full">
@@ -13,7 +13,7 @@ function BoardView() {
           <NewColumn />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

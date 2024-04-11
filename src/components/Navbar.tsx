@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { ActionEnum, SetActiveBoardAction } from "../context/reducer";
+import { Actions, SetActiveBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { AddIcon, SelectIcon } from "../icons";
+import { Board } from "../types";
 import CreateBoard from "./CreateBoard";
 
 function Navbar() {
@@ -12,6 +14,9 @@ function Navbar() {
 
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
   const [openDropdown, setOpenDropDown] = useState(false);
+  const dropdownRef = useDetectClickOutside<HTMLUListElement>({
+    closeMenu: () => setOpenDropDown(false),
+  });
 
   function handleCreateBoard() {
     setIsCreatingBoard((state) => !state);
@@ -21,29 +26,29 @@ function Navbar() {
     setOpenDropDown((state) => !state);
   }
 
-  function handleActiveBoard(boardName: string) {
+  function handleActiveBoard(board: Board) {
     const set_active_board: SetActiveBoardAction = {
-      type: ActionEnum.SET_ACTIVE_BOARD,
-      payload: boardName,
+      type: Actions.SET_ACTIVE_BOARD,
+      payload: board,
     };
 
     dispatch(set_active_board);
     setOpenDropDown(false);
   }
 
-  const createdBoards = Object.keys(boards);
+  const createdBoards = Array.from(boards);
 
-  const renderedBoards = createdBoards.map((name) => {
+  const renderedBoards = createdBoards.map((board) => {
     const active =
-      activeBoard === name ? "bg-gray-100 rounded-md font-medium" : "";
+      activeBoard?.id === board.id ? "bg-gray-100 rounded-md font-medium" : "";
 
     return (
       <li
-        key={name}
-        onClick={() => handleActiveBoard(name)}
+        key={board.id}
+        onClick={() => handleActiveBoard(board)}
         className={`${active} py-2 px-3 cursor-pointer truncate  hover:bg-gray-100 hover:rounded-md `}
       >
-        {name}
+        {board.name}
       </li>
     );
   });
@@ -59,10 +64,10 @@ function Navbar() {
               <button
                 type="button"
                 onClick={handleDropdown}
-                className=" grid grid-cols-[auto,20px] items-center gap-1 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded-lg text-sm px-2 py-2 sm:w-28"
+                className=" grid grid-cols-1 items-center gap-1 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 rounded-lg text-sm px-2 py-2 sm:w-28 sm:grid-cols-[auto,20px]"
               >
                 <span className="hidden sm:block truncate text-left ">
-                  {activeBoard}
+                  {activeBoard.name}
                 </span>
                 <SelectIcon />
               </button>
@@ -84,7 +89,10 @@ function Navbar() {
         )}
 
         {openDropdown && (
-          <ul className="bg-white space-y-1 absolute z-20 top-16 right-4 w-32 border border-gray-300 p-2 rounded-lg text-sm sm:w-64 ">
+          <ul
+            ref={dropdownRef}
+            className="bg-white space-y-1 absolute z-20 top-16 right-4 w-32 border border-gray-300 p-2 rounded-lg text-sm sm:w-64 "
+          >
             {renderedBoards}
           </ul>
         )}

@@ -1,15 +1,17 @@
 import { createContext, useReducer } from "react";
-import reducer, { Actions, State, initalState } from "./reducer";
+import { ActionTypes } from "./actions";
+import { initialState } from "./initialState";
+import reducer, { State } from "./reducer";
 
 interface ContextVales {
   state: State;
-  dispatch: React.Dispatch<Actions>;
+  dispatch: React.Dispatch<ActionTypes>;
 }
 
 export const BoardContext = createContext<ContextVales | null>(null);
 
 function BoardContextProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initalState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   console.log(state);
 
   return (

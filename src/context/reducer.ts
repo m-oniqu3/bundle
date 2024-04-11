@@ -1,165 +1,219 @@
 import { Reducer } from "react";
-import { Boards, Row } from "../types";
+import { Board, Column, Row } from "../types";
+import { ActionTypes, Actions } from "./actions";
 
-export enum ActionEnum {
-  CREATE_BOARD = "CREATE_BOARD",
-  SET_ACTIVE_BOARD = "SET_ACTIVE_BOARD",
-  CREATE_COLUMN = "CREATE_COLUMN",
-  DELETE_COLUMN = "DELETE_COLUMN",
-  CREATE_ROW = "CREATE_ROW",
+interface Rows {
+  [boardname: string]: {
+    [columnID: number]: Row[];
+  };
 }
-
 export interface State {
-  boards: Boards;
-  activeBoard: string | null;
+  boards: Board[];
+  columns: Record<string, Column[]>; // key is board name
+  rows: Rows;
+  activeBoard: Board | null;
 }
 
-export interface CreateBoardAction {
-  type: ActionEnum.CREATE_BOARD;
-  payload: string;
-}
-
-export interface SetActiveBoardAction {
-  type: ActionEnum.SET_ACTIVE_BOARD;
-  payload: string;
-}
-
-export interface CreateColumnAction {
-  type: ActionEnum.CREATE_COLUMN;
-  payload: { activeBoard: string; columnName: string };
-}
-
-export interface DeleteColumnAction {
-  type: ActionEnum.DELETE_COLUMN;
-  payload: { activeBoard: string; columnName: string };
-}
-
-export interface CreateRowAction {
-  type: ActionEnum.CREATE_ROW;
-  payload: { activeBoard: string; columnName: string; row: Row };
-}
-
-export type Actions =
-  | CreateBoardAction
-  | SetActiveBoardAction
-  | CreateColumnAction
-  | DeleteColumnAction
-  | CreateRowAction;
-
-/*
-const newState = Object.assign({}, state, {
-  nestedObject: Object.assign({}, state.nestedObject, {
-    nestedProperty: newValue
-  })
-});
-*/
-
-export const initalState: State = {
-  activeBoard: null,
-  boards: {
-    tasks: [
-      {
-        name: "To Do",
-        colour: "blue",
-        rows: [
-          { id: 1, content: "Design UI" },
-          { id: 2, content: "Implement functionality" },
-          { id: 3, content: "Write tests" },
-        ],
-      },
-      {
-        name: "In Progress",
-        colour: "green",
-        rows: [{ id: 4, content: "Refactor code" }],
-      },
-    ],
-    finished: [
-      {
-        name: "Done",
-        colour: "orange",
-        rows: [{ id: 5, content: "Deploy to production" }],
-      },
-    ],
-  },
-};
-
-const reducer: Reducer<State, Actions> = (state, action) => {
+const reducer: Reducer<State, ActionTypes> = (state, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case ActionEnum.CREATE_BOARD:
+    case Actions.CREATE_BOARD: {
+      const id = Date.now();
       return Object.assign({}, state, {
-        boards: Object.assign({}, state.boards, { [payload]: [] }),
-      });
-
-    case ActionEnum.SET_ACTIVE_BOARD:
-      return Object.assign({}, state, { activeBoard: payload });
-
-    case ActionEnum.CREATE_COLUMN:
-      // copy state
-      return Object.assign({}, state, {
-        // copy boards
-        boards: Object.assign({}, state.boards, {
-          [payload.activeBoard]: [
-            // copy cols for active board & add new col
-            ...state.boards[payload.activeBoard],
-            { name: payload.columnName, colour: "pink", rows: [] },
-          ],
-        }),
-      });
-
-    case ActionEnum.DELETE_COLUMN: {
-      // clone active board
-      const columnsForActiveBoard = state.boards[payload.activeBoard].concat(
-        []
-      );
-
-      // get index of column
-      const columnIndex = state.boards[payload.activeBoard].findIndex(
-        (el) => el.name === payload.columnName
-      );
-
-      if (columnIndex === -1) return state;
-
-      // manipulate the clone
-      // don't spread because splice returns array of deleted elements
-      columnsForActiveBoard.splice(columnIndex, 1);
-
-      return Object.assign({}, state, {
-        boards: Object.assign({}, state.boards, {
-          [payload.activeBoard]: columnsForActiveBoard,
-        }),
+        boards: [...state.boards, { name: payload, id }],
+        activeBoard: { name: payload, id },
+        columns: {
+          ...state.columns,
+          [id]: [],
+        },
       });
     }
 
-    case ActionEnum.CREATE_ROW: {
-      const column = state.boards[payload.activeBoard].find(
-        (col) => col.name === payload.columnName
-      );
+    case Actions.DELETE_BOARD: {
+      const boards = state.boards
+        .concat([])
+        .filter((board) => board.id !== payload);
+      const columnsForBoard = { ...state.columns };
+      const rowsForBoard = { ...state.rows };
 
-      if (!column) {
-        console.log("column does not exist");
-        return;
+      delete columnsForBoard[payload];
+      delete rowsForBoard[payload];
+
+      return {
+        ...state,
+        activeBoard: boards[0] ?? null,
+        boards,
+        columns: columnsForBoard,
+        rows: rowsForBoard,
+      };
+    }
+
+    case Actions.EDIT_BOARD_NAME: {
+      const boards = state.boards.concat([]);
+
+      const board = boards.find((board) => board.id === payload.activeBoardID);
+
+      if (!board) {
+        console.log("Could not edit board name");
+        return state;
       }
 
-      // copy state
-      return Object.assign({}, state, {
-        // copy state.boards
-        boards: Object.assign({}, state.boards, {
-          [payload.activeBoard]: [
-            // copy state.boards[board]
-            Object.assign({}, state.boards[payload.activeBoard], {
-              // [board][col]
-              [payload.columnName]: [
-                //copy [board][col]
-                Object.assign({}, column, {
-                  rows: [Object.assign({}, column.rows, payload.row)],
-                }),
-              ],
-            }),
+      board.name = payload.newBoardName;
+
+      return { ...state, activeBoard: board, boards };
+    }
+
+    case Actions.SET_ACTIVE_BOARD:
+      return Object.assign({}, state, { activeBoard: payload });
+
+    case Actions.CREATE_COLUMN: {
+      const columnID = Date.now();
+
+      return {
+        ...state,
+        columns: {
+          ...state.columns,
+          [payload.activeBoardID]: [
+            ...state.columns[payload.activeBoardID],
+            { id: columnID, name: payload.columnName, colour: "#D0FEF5" },
           ],
-        }),
-      });
+        },
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [columnID]: [],
+          },
+        },
+      };
+    }
+
+    case Actions.DELETE_COLUMN: {
+      // clone columns for active board
+      const columnsForActiveBoard = state.columns[payload.activeBoardID].concat(
+        []
+      );
+
+      // get index for the given column
+      const columnIndex = columnsForActiveBoard.findIndex(
+        (col) => col.id === payload.columnID
+      );
+
+      // remove column at that index
+      columnsForActiveBoard.splice(columnIndex, 1);
+
+      // clone rows and del
+      const rows = Object.assign({}, state.rows[payload.activeBoardID]);
+      delete rows[payload.columnID];
+
+      return {
+        ...state,
+        columns: {
+          ...state.columns,
+          [payload.activeBoardID]: columnsForActiveBoard,
+        },
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: rows,
+        },
+      };
+    }
+
+    case Actions.EDIT_COLUMN_NAME: {
+      // clone columns in board
+      const columns = state.columns[payload.activeBoardID].concat([]);
+
+      //find column
+      const column = columns.find((col) => col.id === payload.columnID);
+
+      if (!column) {
+        console.log("Could not edit column name");
+        return state;
+      }
+
+      // update column name
+      column.name = payload.newColumnName;
+
+      return {
+        ...state,
+        columns: {
+          ...state.columns,
+          [payload.activeBoardID]: columns,
+        },
+      };
+    }
+
+    case Actions.CREATE_ROW: {
+      return {
+        ...state,
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [payload.columnID]: [
+              ...(state.rows[payload.activeBoardID][payload.columnID] ?? []),
+              payload.row,
+            ],
+          },
+        },
+      };
+    }
+
+    case Actions.DELETE_ROW: {
+      const columnsForBoard = state.rows[payload.activeBoardID];
+      const rowsForColumn = columnsForBoard[payload.columnID].concat([]);
+
+      //index of row
+      const rowIndex = rowsForColumn.findIndex(
+        (row) => row.id === payload.rowID
+      );
+
+      if (rowIndex === -1) {
+        console.log("Could not find row to delete");
+        return state;
+      }
+
+      //delete the row
+
+      rowsForColumn.splice(rowIndex, 1);
+
+      return {
+        ...state,
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [payload.columnID]: rowsForColumn,
+          },
+        },
+      };
+    }
+
+    case Actions.EDIT_ROW: {
+      const columnsForBoard = state.rows[payload.activeBoardID];
+      const rowsForColumn = columnsForBoard[payload.columnID].concat([]);
+
+      // find the row
+      const row = rowsForColumn.find((row) => row.id === payload.rowID);
+
+      if (!row) {
+        console.log("Could not find row to update");
+        return state;
+      }
+
+      row["content"] = payload.newContent;
+
+      return {
+        ...state,
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [payload.columnID]: rowsForColumn,
+          },
+        },
+      };
     }
 
     default:

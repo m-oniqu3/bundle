@@ -1,10 +1,7 @@
 import { useState } from "react";
-import {
-  ActionEnum,
-  CreateBoardAction,
-  SetActiveBoardAction,
-} from "../context/reducer";
+import { Actions, CreateBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { CloseIcon } from "../icons";
 
 interface Props {
@@ -13,6 +10,8 @@ interface Props {
 
 function CreateBoard(props: Props) {
   const { close } = props;
+  const formRef = useDetectClickOutside<HTMLFormElement>({ closeMenu: close });
+
   const {
     state: { boards },
     dispatch,
@@ -23,28 +22,24 @@ function CreateBoard(props: Props) {
     e.preventDefault();
     if (!name) return;
 
-    if (boards[name]) {
+    if (boards.find((board) => board.name === name)) {
       console.log("board exists");
       return;
     }
 
     const create_board: CreateBoardAction = {
-      type: ActionEnum.CREATE_BOARD,
-      payload: name,
-    };
-
-    const set_active_board: SetActiveBoardAction = {
-      type: ActionEnum.SET_ACTIVE_BOARD,
+      type: Actions.CREATE_BOARD,
       payload: name,
     };
 
     dispatch(create_board);
-    dispatch(set_active_board);
+
     close();
   }
 
   return (
     <form
+      ref={formRef}
       className="w-full max-w-72 flex items-center gap-2"
       onSubmit={handleSubmit}
     >
