@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Actions, CreateRowAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import { AddIcon, EllipsisIcon } from "../icons";
@@ -19,10 +19,39 @@ function Panel(props: Props) {
   const [isMenuOpen, setIsOpenMenu] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [entry, setEntry] = useState("");
+
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+
   const {
     dispatch,
     state: { activeBoard, rows },
   } = useBoardContext();
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "";
+
+      textAreaRef.current.style.height = 30 + "px";
+
+      textAreaRef.current.selectionStart = textAreaRef.current.value.length;
+    }
+  }, [showForm]);
+
+  useEffect(() => {
+    function detectClickOutside(e: MouseEvent) {
+      if (
+        textAreaRef.current &&
+        !textAreaRef.current.contains(e.target as Node)
+      ) {
+        setShowForm(false);
+        // setEntry("");
+      }
+    }
+
+    document.addEventListener("mousedown", detectClickOutside);
+
+    return () => document.removeEventListener("mousedown", detectClickOutside);
+  }, []);
 
   function handlePosition(e: React.MouseEvent<SVGSVGElement, MouseEvent>) {
     setPosition({ x: e.pageX, y: e.pageY });
@@ -33,7 +62,14 @@ function Panel(props: Props) {
     setShowForm((state) => !state);
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  // resize text area on input
+  function handleTextArea(e: React.FormEvent<HTMLTextAreaElement>) {
+    e.currentTarget.style.height = "auto";
+
+    e.currentTarget.style.height = e.currentTarget.scrollHeight + "px";
+  }
+
+  function handleSubmit(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     e.preventDefault();
 
     if (!entry) return;
@@ -54,6 +90,16 @@ function Panel(props: Props) {
 
     dispatch(create_row);
     setEntry("");
+
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = 30 + "px";
+    }
+  }
+
+  function handleKeyPress(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key.toLowerCase() === "enter") {
+      handleSubmit(e);
+    }
   }
 
   const rowsForBoard = activeBoard ? rows[activeBoard.id] : [];
@@ -85,12 +131,14 @@ function Panel(props: Props) {
         <ul className="flex flex-col gap-1 pt-2">{cards}</ul>
 
         {showForm && (
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
+          <form>
+            <textarea
+              ref={textAreaRef}
               value={entry}
+              onInput={handleTextArea}
               onChange={(e) => setEntry(e.target.value)}
-              className="p-2 border border-gray-200 rounded-md w-full text-sm focus:outline-none  "
+              onKeyDown={handleKeyPress}
+              className="min-h-9 p-2 border border-gray-200 rounded-md w-full text-sm focus:outline-none resize-none"
               autoFocus
             />
           </form>

@@ -8,6 +8,7 @@ export enum Actions {
   EDIT_COLUMN_NAME = "EDIT_COLUMN_NAME",
   CREATE_ROW = "CREATE_ROW",
   DELETE_ROW = "DELETE_ROW",
+  EDIT_ROW = "EDIT_ROW",
 }
 
 export interface CreateBoardAction {
@@ -48,6 +49,16 @@ export interface DeleteRowAction {
   };
 }
 
+export interface EditRowAction {
+  type: Actions.EDIT_ROW;
+  payload: {
+    activeBoardID: number;
+    columnID: number;
+    rowID: number;
+    newContent: string;
+  };
+}
+
 export type ActionTypes =
   | CreateBoardAction
   | SetActiveBoardAction
@@ -55,4 +66,5 @@ export type ActionTypes =
   | DeleteColumnAction
   | CreateRowAction
   | EditColumnNameAction
-  | DeleteRowAction;
+  | DeleteRowAction
+  | EditRowAction;

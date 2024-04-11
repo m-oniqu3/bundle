@@ -156,6 +156,32 @@ const reducer: Reducer<State, ActionTypes> = (state, action) => {
       };
     }
 
+    case Actions.EDIT_ROW: {
+      const columnsForBoard = state.rows[payload.activeBoardID];
+      const rowsForColumn = columnsForBoard[payload.columnID].concat([]);
+
+      // find the row
+      const row = rowsForColumn.find((row) => row.id === payload.rowID);
+
+      if (!row) {
+        console.log("Could not find row to update");
+        return state;
+      }
+
+      row["content"] = payload.newContent;
+
+      return {
+        ...state,
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [payload.columnID]: rowsForColumn,
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }
