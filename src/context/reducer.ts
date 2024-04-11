@@ -30,6 +30,48 @@ const reducer: Reducer<State, ActionTypes> = (state, action) => {
       });
     }
 
+    case Actions.DELETE_BOARD: {
+      const boards = state.boards
+        .concat([])
+        .filter((board) => board.id !== payload);
+      const columnsForBoard = { ...state.columns };
+      const rowsForBoard = { ...state.rows };
+
+      // const boardIndex = boards.findIndex((board) => board.id === payload);
+
+      // if (boardIndex === -1) {
+      //   console.log("Could not delete board");
+      //   return state;
+      // }
+
+      // boards.splice(boardIndex, 1);
+      delete columnsForBoard[payload];
+      delete rowsForBoard[payload];
+
+      return {
+        ...state,
+        activeBoard: boards[0] ?? null,
+        boards,
+        columns: columnsForBoard,
+        rows: rowsForBoard,
+      };
+    }
+
+    case Actions.EDIT_BOARD_NAME: {
+      const boards = state.boards.concat([]);
+
+      const board = boards.find((board) => board.id === payload.activeBoardID);
+
+      if (!board) {
+        console.log("Could not edit board name");
+        return state;
+      }
+
+      board.name = payload.newBoardName;
+
+      return { ...state, boards };
+    }
+
     case Actions.SET_ACTIVE_BOARD:
       return Object.assign({}, state, { activeBoard: payload });
 

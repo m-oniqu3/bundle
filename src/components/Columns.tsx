@@ -7,12 +7,6 @@ function Columns() {
   } = useBoardContext();
 
   const columnsForBoard = activeBoard ? columns[activeBoard.id] : [];
-  // const cols = columnsForBoard ? columnsForBoard : [];
-  console.log(columnsForBoard);
-
-  //   ? columns[activeBoard.id]
-  //   : []
-  // : [];
 
   const renderedColumns = columnsForBoard.map((col) => {
     return <Panel key={col.id} column={col} />;

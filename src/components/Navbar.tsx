@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Actions, SetActiveBoardAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { AddIcon, SelectIcon } from "../icons";
 import { Board } from "../types";
 import CreateBoard from "./CreateBoard";
@@ -13,6 +14,9 @@ function Navbar() {
 
   const [isCreatingBoard, setIsCreatingBoard] = useState(false);
   const [openDropdown, setOpenDropDown] = useState(false);
+  const dropdownRef = useDetectClickOutside<HTMLUListElement>({
+    closeMenu: () => setOpenDropDown(false),
+  });
 
   function handleCreateBoard() {
     setIsCreatingBoard((state) => !state);
@@ -36,7 +40,7 @@ function Navbar() {
 
   const renderedBoards = createdBoards.map((board) => {
     const active =
-      activeBoard === board ? "bg-gray-100 rounded-md font-medium" : "";
+      activeBoard?.id === board.id ? "bg-gray-100 rounded-md font-medium" : "";
 
     return (
       <li
@@ -85,7 +89,10 @@ function Navbar() {
         )}
 
         {openDropdown && (
-          <ul className="bg-white space-y-1 absolute z-20 top-16 right-4 w-32 border border-gray-300 p-2 rounded-lg text-sm sm:w-64 ">
+          <ul
+            ref={dropdownRef}
+            className="bg-white space-y-1 absolute z-20 top-16 right-4 w-32 border border-gray-300 p-2 rounded-lg text-sm sm:w-64 "
+          >
             {renderedBoards}
           </ul>
         )}

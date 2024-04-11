@@ -2,10 +2,14 @@ import { Board, Column, Row } from "../types";
 
 export enum Actions {
   CREATE_BOARD = "CREATE_BOARD",
+  DELETE_BOARD = "DELETE_BOARD",
+  EDIT_BOARD_NAME = "EDIT_BOARD_NAME",
   SET_ACTIVE_BOARD = "SET_ACTIVE_BOARD",
+
   CREATE_COLUMN = "CREATE_COLUMN",
   DELETE_COLUMN = "DELETE_COLUMN",
   EDIT_COLUMN_NAME = "EDIT_COLUMN_NAME",
+
   CREATE_ROW = "CREATE_ROW",
   DELETE_ROW = "DELETE_ROW",
   EDIT_ROW = "EDIT_ROW",
@@ -14,6 +18,19 @@ export enum Actions {
 export interface CreateBoardAction {
   type: Actions.CREATE_BOARD;
   payload: string;
+}
+
+export interface DeleteBoardAction {
+  type: Actions.DELETE_BOARD;
+  payload: Board["id"];
+}
+
+export interface EditBoardAction {
+  type: Actions.EDIT_BOARD_NAME;
+  payload: {
+    activeBoardID: Board["id"];
+    newBoardName: Board["name"];
+  };
 }
 
 export interface SetActiveBoardAction {
@@ -61,6 +78,8 @@ export interface EditRowAction {
 
 export type ActionTypes =
   | CreateBoardAction
+  | DeleteBoardAction
+  | EditBoardAction
   | SetActiveBoardAction
   | CreateColumnAction
   | DeleteColumnAction
