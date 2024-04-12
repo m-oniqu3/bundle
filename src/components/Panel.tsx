@@ -112,7 +112,7 @@ function Panel(props: Props) {
   return (
     <>
       <div className="w-72 space-y-1">
-        <header className="flex items-center gap-4 relative">
+        <header className="flex items-center gap-4 relative" draggable>
           <h3
             className="px-1 text-sm  rounded-sm"
             style={{ backgroundColor: colour }}

@@ -13,3 +13,8 @@ export interface Board {
   name: string;
   id: number;
 }
+
+export interface Transfer {
+  columnid: string;
+  rowid: string;
+}

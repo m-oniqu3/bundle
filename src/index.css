@@ -19,4 +19,10 @@
     scrollbar-width: none;
     /* Firefox */
   }
+
+  .drop-target {
+    border-top: 1px solid green;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
 }

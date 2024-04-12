@@ -1,7 +1,7 @@
 import { State } from "./reducer";
 
 export const initialState: State = {
-  activeBoard: null,
+  activeBoard: { name: "Assignments", id: 4 },
   boards: [
     { name: "Development", id: 20 },
     { name: "Testing", id: 74 },

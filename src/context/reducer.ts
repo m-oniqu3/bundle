@@ -216,6 +216,57 @@ const reducer: Reducer<State, ActionTypes> = (state, action) => {
       };
     }
 
+    case Actions.MOVE_ROW: {
+      const draggedRow = payload.draggedRow;
+      const dropTarget = payload.dropTarget;
+
+      const rows = { ...state.rows };
+
+      const sourceColumn = { ...rows[payload.activeBoardID] };
+      const targetColumn = { ...rows[payload.activeBoardID] };
+      const rowsForSourceColumn = sourceColumn[draggedRow.columnID];
+      const rowsFortargetColumn = targetColumn[dropTarget.columnID];
+
+      const sourceRowIndex = rowsForSourceColumn.findIndex(
+        (row) => row.id === draggedRow.rowID
+      );
+
+      let targetRowIndex = rowsFortargetColumn.findIndex(
+        (row) => row.id === dropTarget.rowID
+      );
+
+      if (sourceRowIndex === -1 || targetRowIndex === -1) {
+        return state;
+      }
+
+      if (draggedRow.columnID === dropTarget.columnID) {
+        if (sourceRowIndex < targetRowIndex) {
+          targetRowIndex--;
+        }
+      }
+
+      // Remove sourceRow
+      const [removedRow] = rowsForSourceColumn.splice(sourceRowIndex, 1);
+
+      // Insert into target row
+      rowsFortargetColumn.splice(targetRowIndex, 0, removedRow);
+
+      return {
+        ...state,
+        rows: {
+          ...state.rows,
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [draggedRow.columnID]: rowsForSourceColumn,
+          },
+          [payload.activeBoardID]: {
+            ...state.rows[payload.activeBoardID],
+            [dropTarget.columnID]: rowsFortargetColumn,
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }

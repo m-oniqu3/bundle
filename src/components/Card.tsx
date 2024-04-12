@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Actions, DeleteRowAction } from "../context/actions";
+import { Actions, DeleteRowAction, MoveRowAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { DeleteIcon, EditIcon, EllipsisVertical } from "../icons";
-import { Column, Row } from "../types";
+import { Column, Row, Transfer } from "../types";
 import EditCard from "./EditCard";
 
 const options = [
@@ -26,6 +26,7 @@ function Card(props: Props) {
   const [isEditingRow, setIsEditingRow] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [activeOption, setActiveOption] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
 
   const menuRef = useDetectClickOutside<HTMLUListElement>({
     closeMenu: () => setOpenMenu(false),
@@ -97,22 +98,105 @@ function Card(props: Props) {
     );
   });
 
+  // DRAG AND DROP FUNCTIONS
+
+  function handleDragStart(e: React.DragEvent<HTMLLIElement>) {
+    e.currentTarget.classList.add("border-pink-500");
+    e.dataTransfer.effectAllowed = "move";
+
+    e.dataTransfer.setData(
+      "text/plain",
+      JSON.stringify(e.currentTarget.dataset)
+    );
+  }
+
+  function handleDragEnd(e: React.DragEvent<HTMLLIElement>) {
+    e.currentTarget.classList.remove("border-pink-500");
+    setIsHovering(false);
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLLIElement>) {
+    e.preventDefault();
+    return false;
+  }
+
+  function handleDragEnter() {
+    setIsHovering((state) => !state);
+  }
+
+  function handleDragLeave(e: React.DragEvent<HTMLLIElement>) {
+    e.currentTarget.classList.remove("drop-target");
+    setIsHovering(false);
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLLIElement>) {
+    e.stopPropagation(); // stops the browser from redirecting.
+    setIsHovering(false);
+
+    const draggedRow: Transfer = JSON.parse(e.dataTransfer.getData("text"));
+
+    const dropTarget: Transfer = {
+      columnid: e.currentTarget.dataset.columnid as string,
+      rowid: e.currentTarget.dataset.rowid as string,
+    };
+
+    if (!activeBoard) {
+      console.log("active board is needed to move rows");
+      return;
+    }
+
+    //check that row wasn't dropped on itself
+    if (draggedRow.rowid === dropTarget.rowid) return;
+
+    const move_row: MoveRowAction = {
+      type: Actions.MOVE_ROW,
+      payload: {
+        activeBoardID: activeBoard?.id,
+        draggedRow: {
+          columnID: +draggedRow.columnid,
+          rowID: +draggedRow.rowid,
+        },
+        dropTarget: {
+          columnID: +dropTarget.columnid,
+          rowID: +dropTarget.rowid,
+        },
+      },
+    };
+    dispatch(move_row);
+  }
+
   return (
     <>
       {!isEditingRow && (
-        <li
-          ref={rowRef}
-          className="w-full break-word grid grid-cols-[auto,15px] items-start p-2 border border-slate-200 rounded-md text-sm hover:bg-slate-100 "
-        >
-          {row.content}
-
-          <div
-            onClick={handleMenu}
-            className="z-10 w-full flex items-center justify-center hover:bg-gray-200 hover:rounded-sm"
+        <>
+          <li
+            className={`relative top-[3px] border-t-4 ${
+              isHovering ? "border-blue-400" : "border-transparent"
+            }`}
+          ></li>
+          <li
+            data-rowid={row.id}
+            data-columnid={columnID}
+            ref={rowRef}
+            className=" w-full break-word grid grid-cols-[auto,15px] items-start p-2 border border-slate-200 rounded-md text-sm hover:bg-slate-100 "
+            draggable
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
-            <EllipsisVertical />
-          </div>
-        </li>
+            {row.content}
+
+            <div
+              onClick={handleMenu}
+              className="z-10 w-full flex items-center justify-center hover:bg-gray-200 hover:rounded-sm"
+            >
+              <EllipsisVertical />
+            </div>
+          </li>
+        </>
       )}
 
       {isEditingRow && (
