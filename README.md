@@ -1,30 +1,33 @@
-# React + TypeScript + Vite
+# bundle - a kanban board
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Description
 
-Currently, two official plugins are available:
+This is a simple kanban board that allows you to create, edit, and delete multiple boards and tasks. It is built using React, TypeScript, and Tailwind. It uses the native HTML5 drag and drop API to allow you to drag and drop tasks and columns.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+For state management, I used the `useReducer` hook. I also used the `useContext` hook to pass the state and dispatch functions down to the components that need them.
 
-## Expanding the ESLint configuration
+### Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- Create, edit, and delete boards
+- Create, edit, and delete tasks
+- Drag and drop tasks between columns
+- Drag and drop columns to reorder them
 
-- Configure the top-level `parserOptions` property like this:
+### Technologies Used
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+- React
+- TypeScript
+- Tailwind CSS
+- HTML5 Drag and Drop API
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+### Future Improvements
+
+- Add a backend to persist the data
+- Add user authentication
+- Add the ability to share boards with other users
+
+### Installation
+
+1. Clone the repository
+2. Run `npm install` to install the dependencies
+3. Run `npm run dev` to start the development server
