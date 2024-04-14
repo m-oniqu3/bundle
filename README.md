@@ -31,3 +31,8 @@ For state management, I used the `useReducer` hook. I also used the `useContext`
 1. Clone the repository
 2. Run `npm install` to install the dependencies
 3. Run `npm run dev` to start the development server
+
+
+
+https://github.com/m-oniqu3/bundle/assets/55692227/1d979d2b-f99d-4fb9-86b3-637ce9bbdbc9
+
