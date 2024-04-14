@@ -114,12 +114,13 @@ function Card(props: Props) {
 
   function handleDragOver(e: React.DragEvent<HTMLLIElement>) {
     e.preventDefault();
+    e.stopPropagation();
 
     return false;
   }
 
   function handleDragEnter(e: React.DragEvent<HTMLLIElement>) {
-    console.log(e.target);
+    e.stopPropagation();
     setIsHovering((state) => !state);
   }
 
@@ -182,6 +183,7 @@ function Card(props: Props) {
           <li
             data-rowid={row.id}
             data-columnid={columnID}
+            data-content={row.content}
             data-type="row"
             ref={rowRef}
             className=" w-full break-word grid grid-cols-[auto,15px] items-start p-2 border border-slate-200 rounded-md text-sm hover:bg-slate-100 "

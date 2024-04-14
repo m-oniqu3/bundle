@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Actions, CreateRowAction, MoveColumnAction } from "../context/actions";
+import {
+  Actions,
+  CreateRowAction,
+  DeleteRowAction,
+  MoveColumnAction,
+} from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
 import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { AddIcon, EllipsisIcon } from "../icons";
@@ -20,6 +25,7 @@ function Panel(props: Props) {
   const [isMenuOpen, setIsOpenMenu] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [entry, setEntry] = useState("");
+  const [isHovering, setIsHovering] = useState(false);
 
   const textAreaRef = useDetectClickOutside<HTMLTextAreaElement>({
     closeMenu: () => setShowForm(false),
@@ -39,6 +45,13 @@ function Panel(props: Props) {
       textAreaRef.current.selectionStart = textAreaRef.current.value.length;
     }
   }, [showForm, textAreaRef]);
+
+  const rowsForBoard = activeBoard ? rows[activeBoard.id] : [];
+  const rowsForColumn = rowsForBoard[id] ?? [];
+
+  const cards = rowsForColumn.map((row) => {
+    return <Card key={row.id} row={row} columnID={id} />;
+  });
 
   function handlePosition(e: React.MouseEvent<SVGSVGElement, MouseEvent>) {
     setPosition({ x: e.pageX, y: e.pageY });
@@ -124,16 +137,62 @@ function Panel(props: Props) {
     return false;
   }
 
-  const rowsForBoard = activeBoard ? rows[activeBoard.id] : [];
-  const rowsForColumn = rowsForBoard[id] ?? [];
+  function handleDropPanel(e: React.DragEvent<HTMLDivElement>) {
+    setIsHovering(false);
 
-  const cards = rowsForColumn.map((row) => {
-    return <Card key={row.id} row={row} columnID={id} />;
-  });
+    const sourceData = JSON.parse(e.dataTransfer.getData("text")) as {
+      rowid: string;
+      columnid: string;
+      type: string;
+      content: string;
+    };
+
+    if (!activeBoard) {
+      console.log("active board is needed to move rows");
+      return;
+    }
+
+    if (sourceData.type !== "row") return;
+
+    const add_row: CreateRowAction = {
+      type: Actions.CREATE_ROW,
+      payload: {
+        activeBoardID: activeBoard.id,
+        columnID: id,
+        row: { id: +sourceData.rowid, content: sourceData.content },
+      },
+    };
+
+    const delete_row: DeleteRowAction = {
+      type: Actions.DELETE_ROW,
+      payload: {
+        activeBoardID: activeBoard.id,
+        columnID: +sourceData.columnid,
+        rowID: +sourceData.rowid,
+      },
+    };
+
+    dispatch(add_row);
+    dispatch(delete_row);
+  }
+
+  function handleDragEnterPanel() {
+    setIsHovering((state) => !state);
+  }
+
+  function handleDragLeavePanel() {
+    setIsHovering(false);
+  }
 
   return (
     <>
-      <div className="w-72 space-y-1">
+      <div
+        className="w-72 min-h-48 space-y-1 "
+        onDragEnter={handleDragEnterPanel}
+        onDragLeave={handleDragLeavePanel}
+        onDragOver={handleDragOver}
+        onDrop={handleDropPanel}
+      >
         <header
           className="relative flex items-center gap-4 "
           data-column-id={id}
@@ -158,6 +217,12 @@ function Panel(props: Props) {
         </header>
 
         <ul className="flex flex-col gap-1 pt-2">{cards}</ul>
+
+        <div
+          className={` border-t-4 ${
+            isHovering ? "border-blue-400" : "border-transparent"
+          }`}
+        ></div>
 
         {showForm && (
           <form>

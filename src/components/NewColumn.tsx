@@ -74,7 +74,7 @@ function NewColumn() {
       if (positions.x + formWidth > width) {
         formRef.current.style.right = "0";
       } else {
-        formRef.current.style.left = `${positions.x}px `;
+        formRef.current.style.left = `${positions.x - 50}px `;
       }
     }
 
@@ -85,7 +85,7 @@ function NewColumn() {
     <div className="min-w-60">
       <button
         onClick={handlePositions}
-        className="relative -top-2 cursor-pointer bg-gray-100 rounded-md p-2"
+        className="relative -top-2 cursor-pointer p-2 rounded-md grid place-items-center bg-gray-100 hover:bg-gray-200"
       >
         <AddIcon />
       </button>
@@ -95,7 +95,7 @@ function NewColumn() {
           ref={formRef}
           className="w-72 mt-4 flex gap-2 items-center absolute "
           onSubmit={handleSubmit}
-          style={{ top: positions.y + 15 }}
+          style={{ top: positions.y + 10 }}
         >
           <input
             autoFocus
