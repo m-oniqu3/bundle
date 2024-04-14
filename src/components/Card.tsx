@@ -104,10 +104,7 @@ function Card(props: Props) {
     e.currentTarget.classList.add("border-pink-500");
     e.dataTransfer.effectAllowed = "move";
 
-    e.dataTransfer.setData(
-      "text/plain",
-      JSON.stringify(e.currentTarget.dataset)
-    );
+    e.dataTransfer.setData("text", JSON.stringify(e.currentTarget.dataset));
   }
 
   function handleDragEnd(e: React.DragEvent<HTMLLIElement>) {
@@ -117,10 +114,12 @@ function Card(props: Props) {
 
   function handleDragOver(e: React.DragEvent<HTMLLIElement>) {
     e.preventDefault();
+
     return false;
   }
 
-  function handleDragEnter() {
+  function handleDragEnter(e: React.DragEvent<HTMLLIElement>) {
+    console.log(e.target);
     setIsHovering((state) => !state);
   }
 
@@ -132,6 +131,12 @@ function Card(props: Props) {
   function handleDrop(e: React.DragEvent<HTMLLIElement>) {
     e.stopPropagation(); // stops the browser from redirecting.
     setIsHovering(false);
+
+    if (
+      !JSON.parse(e.dataTransfer.getData("text")).type ||
+      JSON.parse(e.dataTransfer.getData("text")).type !== "row"
+    )
+      return;
 
     const draggedRow: Transfer = JSON.parse(e.dataTransfer.getData("text"));
 
@@ -177,6 +182,7 @@ function Card(props: Props) {
           <li
             data-rowid={row.id}
             data-columnid={columnID}
+            data-type="row"
             ref={rowRef}
             className=" w-full break-word grid grid-cols-[auto,15px] items-start p-2 border border-slate-200 rounded-md text-sm hover:bg-slate-100 "
             draggable

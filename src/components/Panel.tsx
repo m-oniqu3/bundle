@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { Actions, CreateRowAction } from "../context/actions";
+import { useEffect, useState } from "react";
+import { Actions, CreateRowAction, MoveColumnAction } from "../context/actions";
 import { useBoardContext } from "../context/useBoardContext";
+import useDetectClickOutside from "../hooks/useDetectClickOutside";
 import { AddIcon, EllipsisIcon } from "../icons";
 import { Column } from "../types";
 import Card from "./Card";
@@ -20,7 +21,9 @@ function Panel(props: Props) {
   const [showForm, setShowForm] = useState(false);
   const [entry, setEntry] = useState("");
 
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textAreaRef = useDetectClickOutside<HTMLTextAreaElement>({
+    closeMenu: () => setShowForm(false),
+  });
 
   const {
     dispatch,
@@ -35,23 +38,7 @@ function Panel(props: Props) {
 
       textAreaRef.current.selectionStart = textAreaRef.current.value.length;
     }
-  }, [showForm]);
-
-  useEffect(() => {
-    function detectClickOutside(e: MouseEvent) {
-      if (
-        textAreaRef.current &&
-        !textAreaRef.current.contains(e.target as Node)
-      ) {
-        setShowForm(false);
-        // setEntry("");
-      }
-    }
-
-    document.addEventListener("mousedown", detectClickOutside);
-
-    return () => document.removeEventListener("mousedown", detectClickOutside);
-  }, []);
+  }, [showForm, textAreaRef]);
 
   function handlePosition(e: React.MouseEvent<SVGSVGElement, MouseEvent>) {
     setPosition({ x: e.pageX, y: e.pageY });
@@ -102,6 +89,41 @@ function Panel(props: Props) {
     }
   }
 
+  function handleDragStart(e: React.DragEvent<HTMLElement>) {
+    e.dataTransfer.effectAllowed = "move";
+
+    e.dataTransfer.setData("text", JSON.stringify(e.currentTarget.dataset));
+  }
+
+  function handleDrop(e: React.DragEvent<HTMLElement>) {
+    const sourceColumn = JSON.parse(e.dataTransfer.getData("text"))
+      .columnId as string;
+    const targetColumn = e.currentTarget.dataset.columnId as string;
+
+    if (!activeBoard) {
+      console.log("active board is need to move columns");
+      return;
+    }
+
+    if (sourceColumn === targetColumn) return;
+
+    const move_col: MoveColumnAction = {
+      type: Actions.MOVE_COLUMN,
+      payload: {
+        activeBoardID: activeBoard.id,
+        draggedColumnID: +sourceColumn,
+        targetColumnID: +targetColumn,
+      },
+    };
+
+    dispatch(move_col);
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLElement>) {
+    e.preventDefault();
+    return false;
+  }
+
   const rowsForBoard = activeBoard ? rows[activeBoard.id] : [];
   const rowsForColumn = rowsForBoard[id] ?? [];
 
@@ -112,7 +134,14 @@ function Panel(props: Props) {
   return (
     <>
       <div className="w-72 space-y-1">
-        <header className="flex items-center gap-4 relative" draggable>
+        <header
+          className="relative flex items-center gap-4 "
+          data-column-id={id}
+          draggable
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           <h3
             className="px-1 text-sm  rounded-sm"
             style={{ backgroundColor: colour }}

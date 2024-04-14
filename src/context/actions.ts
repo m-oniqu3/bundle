@@ -9,6 +9,7 @@ export enum Actions {
   CREATE_COLUMN = "CREATE_COLUMN",
   DELETE_COLUMN = "DELETE_COLUMN",
   EDIT_COLUMN_NAME = "EDIT_COLUMN_NAME",
+  MOVE_COLUMN = "MOVE_COLUMN",
 
   CREATE_ROW = "CREATE_ROW",
   DELETE_ROW = "DELETE_ROW",
@@ -86,6 +87,15 @@ export interface MoveRowAction {
   };
 }
 
+export interface MoveColumnAction {
+  type: Actions.MOVE_COLUMN;
+  payload: {
+    activeBoardID: number;
+    draggedColumnID: number;
+    targetColumnID: number;
+  };
+}
+
 export type ActionTypes =
   | CreateBoardAction
   | DeleteBoardAction
@@ -93,6 +103,7 @@ export type ActionTypes =
   | SetActiveBoardAction
   | CreateColumnAction
   | DeleteColumnAction
+  | MoveColumnAction
   | CreateRowAction
   | EditColumnNameAction
   | DeleteRowAction

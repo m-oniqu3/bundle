@@ -25,4 +25,20 @@
     border-top-left-radius: 0;
     border-top-right-radius: 0;
   }
+
+  /* CSS class to move columns to the right */
+  .move-right {
+    transform: translateX(72px);
+    /* Adjust the value as needed */
+    transition: transform 0.3s ease;
+    /* Adjust the transition duration and timing function */
+  }
+
+  /* CSS class to move columns to the left */
+  .move-left {
+    transform: translateX(-72px);
+    /* Adjust the value as needed */
+    transition: transform 0.3s ease;
+    /* Adjust the transition duration and timing function */
+  }
 }

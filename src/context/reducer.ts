@@ -267,6 +267,31 @@ const reducer: Reducer<State, ActionTypes> = (state, action) => {
       };
     }
 
+    case Actions.MOVE_COLUMN: {
+      const columns = state.columns[payload.activeBoardID].concat([]);
+
+      const sourceColumnIndex = columns.findIndex(
+        (col) => col.id === payload.draggedColumnID
+      );
+      const targetColumnIndex = columns.findIndex(
+        (col) => col.id === payload.targetColumnID
+      );
+
+      if (sourceColumnIndex === -1 || targetColumnIndex === -1) {
+        console.log("could not find source or target column");
+        return state;
+      }
+
+      // Remove sourceCol
+      const [removedCol] = columns.splice(sourceColumnIndex, 1);
+      columns.splice(targetColumnIndex, 0, removedCol);
+
+      return {
+        ...state,
+        columns: { ...state.columns, [payload.activeBoardID]: columns },
+      };
+    }
+
     default:
       return state;
   }
