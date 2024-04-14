@@ -1,6 +1,7 @@
 # bundle - a kanban board
 
-<img width="1440" alt="bundle">
+<img width="1440" alt="bundle" src="https://github.com/m-oniqu3/bundle/assets/55692227/e9de8076-6739-4851-8216-d1bb5b3e5c6e">
+
 
 
 ### Description
