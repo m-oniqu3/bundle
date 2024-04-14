@@ -1,5 +1,8 @@
 # bundle - a kanban board
 
+<img width="1440" alt="bundle">
+
+
 ### Description
 
 This is a simple kanban board that allows you to create, edit, and delete multiple boards and tasks. It is built using React, TypeScript, and Tailwind. It uses the native HTML5 drag and drop API to allow you to drag and drop tasks and columns.
