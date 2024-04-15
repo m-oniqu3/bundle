@@ -29,6 +29,7 @@ For state management, I used the `useReducer` hook. I also used the `useContext`
 - Add a backend to persist the data
 - Add user authentication
 - Add the ability to share boards with other users
+- Add the ability to change the color of the columns
 
 ### Installation
 
